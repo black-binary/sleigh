@@ -33,6 +33,7 @@ println!("{} {:?}", len, insts);
 ## Supported Architectures
 
 ✔️ = Ready to Go!
+
 🚧 = Working in Progress
 
 | Arch | Status |
@@ -52,7 +53,8 @@ println!("{} {:?}", len, insts);
 - [ ] Documentation
 - [ ] Detailed disasm operands
 - [ ] Detailed varnode
+- [ ] Unit tests
 
 ## Contribute
 
-This crate is under construction. Ping me if you find any bugs. Any PR are welcomed!
+This crate is under construction. Ping me if you find any bugs. Any PRs are welcomed!

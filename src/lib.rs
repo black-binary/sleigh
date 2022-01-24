@@ -11,7 +11,7 @@ pub type SpaceType = sleigh_sys::SpaceType;
 #[derive(Debug)]
 pub struct AddrSpace {
     pub name: String,
-    pub ty: SpaceType,
+    pub type_: SpaceType,
 }
 
 #[derive(Debug)]
@@ -28,10 +28,10 @@ impl From<&sleigh_sys::ffi::VarnodeData> for VarnodeData {
         let space = address.getSpace();
         let space = unsafe {
             let space = &*space;
-            let ty = sleigh_sys::ffi::getAddrSpaceType(space);
-            let ty = sleigh_sys::SpaceType::from_u32(ty).unwrap();
+            let t = sleigh_sys::ffi::getAddrSpaceType(space);
+            let type_ = sleigh_sys::SpaceType::from_u32(t).unwrap();
             let name = space.getName().to_string();
-            AddrSpace { name, ty }
+            AddrSpace { name, type_ }
         };
         let size = sleigh_sys::ffi::getVarnodeSize(var);
         Self {
