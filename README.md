@@ -32,7 +32,10 @@ println!("{} {:?}", len, insts);
 
 ## Supported Architectures
 
-| Arch | State |
+✔️ = Ready to Go!
+🚧 = Working in Progress
+
+| Arch | Status |
 | - | -  |
 | x86 | ✔️ |
 | x86_64 | ✔️|
@@ -43,3 +46,13 @@ println!("{} {:?}", len, insts);
 | AVR | 🚧 |
 | Dalvik | ✔️ |
 | JVM | ✔️ |
+
+## Todos
+
+- [ ] Documentation
+- [ ] Detailed disasm operands
+- [ ] Detailed varnode
+
+## Contribute
+
+This crate is under construction. Ping me if you find any bugs. Any PR are welcomed!
