@@ -1,0 +1,14 @@
+[package]
+name = "sleigh"
+version = "0.1.0"
+edition = "2021"
+authors = ["black-binary <blackbinary@qq.com>"]
+license = "Apache-2.0"
+description = "A Sleigh decompiler"
+
+[dependencies]
+#sleigh-sys = { path = "../sleigh-sys" }
+sleigh-sys = "0.1"
+cxx = "1.0"
+lzma-rs = "0.2"
+lazy_static = "1.4"
