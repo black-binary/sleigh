@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 authors = ["black-binary <blackbinary@qq.com>"]
 license = "Apache-2.0"
-description = "A Sleigh decompiler"
+description = "A SLEIGH decompiler"
+keywords = ["disassemble", "binary-analysis"]
+repository = "https://github.com/black-binary/sleigh/"
 
 [dependencies]
 #sleigh-sys = { path = "../sleigh-sys" }

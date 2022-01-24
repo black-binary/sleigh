@@ -335,7 +335,7 @@ impl Decompiler {
         }
     }
 
-    pub fn decompile(&mut self, code: &[u8], addr: u64) -> (usize, Vec<Instruction>) {
+    pub fn disassemble(&mut self, code: &[u8], addr: u64) -> (usize, Vec<Instruction>) {
         self.loader.data.clear();
         self.loader.data.extend_from_slice(code);
         self.loader.start = addr;
@@ -360,7 +360,7 @@ mod tests {
         for _ in 0..100 {
             let (n, pcodes) = decompiler.translate(b"\x01\x00\x80\x00", 0x1000);
             println!("{} {:?}", n, pcodes);
-            let (n, insts) = decompiler.decompile(b"\x01\x00\x80\x00", 0x1000);
+            let (n, insts) = decompiler.disassemble(b"\x01\x00\x80\x00", 0x1000);
             println!("{} {:?}", n, insts);
         }
     }
@@ -368,7 +368,7 @@ mod tests {
     fn run(decompiler: &mut Decompiler, code: &[u8], addr: u64) {
         let (n, pcodes) = decompiler.translate(code, addr);
         println!("{} {:?}", n, pcodes);
-        let (n, insts) = decompiler.decompile(code, addr);
+        let (n, insts) = decompiler.disassemble(code, addr);
         println!("{} {:?}", n, insts);
     }
 
