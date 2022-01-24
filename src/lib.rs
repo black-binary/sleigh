@@ -137,6 +137,7 @@ impl sleigh_sys::LoadImage for VectorLoader {
 pub enum X86Mode {
     Mode16,
     Mode32,
+    Mode64,
 }
 
 pub enum X64Mode {
@@ -180,32 +181,22 @@ pub struct DecompilerBuilder<T> {
 }
 
 impl DecompilerBuilder<()> {
-    pub fn x86_64(self, mode: X64Mode) -> DecompilerBuilder<ArchState> {
-        let m = match mode {
-            X64Mode::Mode16 => 1,
-            X64Mode::Mode32 => 2,
-            X64Mode::Mode64 => 3,
-        };
-        Self::x86_inner(m, "x86-64")
-    }
-
-    fn x86_inner(addrsize: u32, name: &str) -> DecompilerBuilder<ArchState> {
-        let mut var = HashMap::new();
-        var.insert("addrsize".to_string(), addrsize);
-        DecompilerBuilder {
-            state: ArchState {
-                spec: sla::get_arch_sla(name).unwrap(),
-                var,
-            },
-        }
-    }
-
     pub fn x86(self, mode: X86Mode) -> DecompilerBuilder<ArchState> {
+        let mut var = HashMap::new();
         let m = match mode {
             X86Mode::Mode16 => 0,
             X86Mode::Mode32 => 1,
+            X86Mode::Mode64 => 2,
         };
-        Self::x86_inner(m, "x86")
+        var.insert("addrsize".to_string(), m);
+        var.insert("opsize".to_string(), m);
+        let spec = match mode {
+            X86Mode::Mode16 | X86Mode::Mode32 => sla::get_arch_sla("x86").unwrap(),
+            X86Mode::Mode64 => sla::get_arch_sla("x86-64").unwrap(),
+        };
+        DecompilerBuilder {
+            state: ArchState { spec, var },
+        }
     }
 
     pub fn aarch64(self, endian: Endian) -> DecompilerBuilder<ArchState> {
@@ -374,6 +365,13 @@ mod tests {
         }
     }
 
+    fn run(decompiler: &mut Decompiler, code: &[u8], addr: u64) {
+        let (n, pcodes) = decompiler.translate(code, addr);
+        println!("{} {:?}", n, pcodes);
+        let (n, insts) = decompiler.decompile(code, addr);
+        println!("{} {:?}", n, insts);
+    }
+
     #[test]
     fn test_concurrent() {
         let a = std::thread::spawn(test_x86);
@@ -385,10 +383,9 @@ mod tests {
     #[test]
     fn test_x86() {
         let mut decompiler = Decompiler::builder().x86(X86Mode::Mode32).build();
-        let (n, pcodes) = decompiler.translate(&[0xcc], 0x1000);
-        println!("{} {:?}", n, pcodes);
-        let (n, insts) = decompiler.decompile(&[0xcc], 0x1000);
-        println!("{} {:?}", n, insts);
+        run(&mut decompiler, b"\x05\x00\x10\x00\x00", 0x1000);
+        let mut decompiler = Decompiler::builder().x86(X86Mode::Mode64).build();
+        run(&mut decompiler, b"\x48\x31\xd8", 0x100010001);
     }
 
     #[test]
@@ -396,10 +393,7 @@ mod tests {
         let mut decompiler = Decompiler::builder()
             .arm(ArmVersion::Arm8, Endian::LittleEndian, ArmMode::Arm)
             .build();
-        let (n, pcodes) = decompiler.translate(b"\x01\x00\x80\x00", 0x1000);
-        println!("{} {:?}", n, pcodes);
-        let (n, insts) = decompiler.decompile(b"\x01\x00\x80\x00", 0x1000);
-        println!("{} {:?}", n, insts);
+        run(&mut decompiler, b"\x01\x00\x80\x00", 0x1000);
     }
 
     #[test]
@@ -407,18 +401,12 @@ mod tests {
         let mut decompiler = Decompiler::builder()
             .arm(ArmVersion::Arm5t, Endian::LittleEndian, ArmMode::Thumb)
             .build();
-        let (n, pcodes) = decompiler.translate(b"\x11\x44\x11\x44", 0x1000);
-        println!("{} {:?}", n, pcodes);
-        let (n, insts) = decompiler.decompile(b"\x11\x44\x11\x44", 0x1000);
-        println!("{} {:?}", n, insts);
+        run(&mut decompiler, b"\x11\x44\x11\x44", 0x1000);
     }
 
     #[test]
     fn test_dalvik() {
         let mut decompiler = Decompiler::builder().dalvik().build();
-        let (n, pcodes) = decompiler.translate(b"\x90\x00\x02\x03", 0x1000);
-        println!("{} {:?}", n, pcodes);
-        let (n, insts) = decompiler.decompile(b"\x90\x00\x02\x03", 0x1000);
-        println!("{} {:?}", n, insts);
+        run(&mut decompiler, b"\x90\x00\x02\x03", 0x1000);
     }
 }
